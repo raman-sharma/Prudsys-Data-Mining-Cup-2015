@@ -1,0 +1,245 @@
+#Load Data File
+train_df = pd.read_csv('DMC_2015_orders_train.txt',sep='|')
+test_df = pd.read_csv('DMC_2015_orders_class.txt',sep='|')
+
+#Add Seconds Feature.....the differnence b/w coupon and order time
+train_df.orderTime = to_datetime(train_df.orderTime)
+train_df.couponsReceived = to_datetime(train_df.couponsReceived)
+series =((train_df.orderTime-train_df.couponsReceived))
+train_df['seconds'] = series
+train_df.seconds= train_df.seconds/np.timedelta64(1, 's')
+train_df.drop(['orderTime','couponsReceived'],axis=1,inplace=True)
+
+#do same for test data
+test_df.orderTime = to_datetime(test_df.orderTime)
+test_df.couponsReceived = to_datetime(test_df.couponsReceived)
+series =((test_df.orderTime-test_df.couponsReceived))
+test_df['seconds'] = series
+test_df.seconds= test_df.seconds/np.timedelta64(1, 's')
+test_df.drop(['orderTime','couponsReceived'],axis=1,inplace=True)
+
+#Encoding Brands to Proper Form 
+
+#converting brands to categorical Data Frame
+df_b1 = pd.DataFrame(train_df[['brand1']])
+df_b1.columns =['brand']
+df_b2 = pd.DataFrame(train_df[['brand2']])
+df_b2.columns = ['brand']
+df_b3 = pd.DataFrame(train_df[['brand3']])
+df_b3.columns = ['brand']
+df = pd.concat([df_b1,df_b2,df_b3],ignore_index=True)
+class_mapping = {label:idx for idx,label in enumerate(set(df['brand']))}
+#applying brand mapping to train data frame
+
+train_b1 = train_df.brand1.map(class_mapping)
+train_b2 = train_df.brand2.map(class_mapping)
+train_b3 = train_df.brand3.map(class_mapping)
+
+#applying brand mapping to test data frame
+
+test_b1 = test_df.brand1.map(class_mapping)
+test_b2 = test_df.brand2.map(class_mapping)
+test_b3 = test_df.brand3.map(class_mapping)
+# applying newly created  encoded series to original data frame
+train_df['brand1'] = train_b1
+train_df['brand2'] = train_b2
+train_df['brand3'] = train_b3
+
+test_df['brand1'] = test_b1
+test_df['brand2'] = test_b2
+test_df['brand3'] = test_b3
+
+#Encoding Category IDs
+
+def encode(df_cat_list,df_cat_cnt):
+    codes = []
+    for cnt in df_cat_cnt:
+        l1 = []
+        for i in xrange(cnt):
+            l1.append(df_cat_list[i])
+        del([df_cat_list[:cnt]])
+        codes.append(l1)
+    return codes
+#Partitioning string categories and keeping the counts of no. of categories in each training example in 12 different lists for 
+#train_data and test_data
+train_cat1_cnt = []
+train_cat2_cnt = []
+train_cat3_cnt = []
+test_cat1_cnt = []
+test_cat2_cnt = []
+test_cat3_cnt = []
+temp1 = []
+temp2 =[]
+temp3 =[]
+temp4 =[]
+temp5 = []
+temp6 = []
+for line in train_df.categoryIDs1:
+    temp1.append(line.split(",")) 
+list1_train = [item for sublist in temp1 for item in sublist]
+for item in temp1:
+    train_cat1_cnt.append(len(item))
+
+for line in train_df.categoryIDs2:
+    temp2.append(line.split(","))
+list2_train = [item for sublist in temp2 for item in sublist]
+for item in temp2:
+    train_cat2_cnt.append(len(item))
+
+for line in train_df.categoryIDs3:
+    temp3.append(line.split(","))
+list3_train = [item for sublist in temp3 for item in sublist]
+for item in temp3:
+    train_cat3_cnt.append(len(item))
+
+for line in test_df.categoryIDs1:
+    temp4.append(line.split(","))
+list1_test = [item for sublist in temp4 for item in sublist]
+for item in temp4:
+    test_cat1_cnt.append(len(item))
+                  
+
+for line in test_df.categoryIDs2:
+    temp5.append(line.split(","))
+list2_test = [item for sublist in temp5 for item in sublist]
+for item in temp5:
+    test_cat2_cnt.append(len(item))
+                  
+
+for line in test_df.categoryIDs3:
+    temp6.append(line.split(","))
+list3_test = [item for sublist in temp6 for item in sublist]
+for item in temp6:
+    test_cat3_cnt.append(len(item))
+
+#concatenating 3 categories data to encode them.....test data categories are subset of training data
+df1 = pd.DataFrame(list1_train)
+df1.columns =['category']
+df2 = pd.DataFrame(list2_train)
+df2.columns = ['category']
+df3 = pd.DataFrame(list3_train)
+df3.columns = ['category']
+
+df4 = pd.DataFrame(list1_test)
+df4.columns =['category']
+df5 = pd.DataFrame(list2_test)
+df5.columns = ['category']
+df6 = pd.DataFrame(list3_test)
+df6.columns = ['category']
+df = pd.concat([df1,df2,df3],ignore_index=True)
+
+class_mapping2 = {label:idx for idx,label in enumerate(set(df['category']))}
+
+
+train_cat1 = list(df1['category'].map(class_mapping2))
+train_df[['categoryIDs1']] = encode(train_cat1,train_cat1_cnt)
+
+train_cat2 = list(df2['category'].map(class_mapping2))
+train_df[['categoryIDs2']] = encode(train_cat2,train_cat2_cnt)
+
+train_cat3 = list(df3['category'].map(class_mapping2))
+train_df[['categoryIDs3']] =  encode(train_cat3,train_cat3_cnt)
+
+#for test data
+test_cat1 = list(df4['category'].map(class_mapping2))
+test_df[['categoryIDs1']] =  encode(test_cat1,test_cat1_cnt)
+
+test_cat2 = list(df5['category'].map(class_mapping2))
+test_df[['categoryIDs2']] =  encode(test_cat2,test_cat2_cnt)
+
+test_cat3 = list(df6['category'].map(class_mapping2))
+test_df[['categoryIDs3']] =  encode(test_cat3,test_cat3_cnt)
+
+#Removing Square brackets from the categoryIDs expression
+def func(LIST):
+    return (",".join( repr(e) for e in LIST ))
+
+train_df['categoryIDs1'] = train_df.categoryIDs1.apply(func)
+test_df['categoryIDs1'] = test_df.categoryIDs1.apply(func)
+
+train_df['categoryIDs2'] = train_df.categoryIDs2.apply(func)
+test_df['categoryIDs2'] = test_df.categoryIDs2.apply(func)
+
+train_df['categoryIDs3'] = train_df.categoryIDs3.apply(func)
+test_df['categoryIDs3'] = test_df.categoryIDs3.apply(func)
+
+#Encoding ProductGroups
+
+#combined data frames of all possible combinations of product Groups i.e. 231
+df_p1 = pd.DataFrame(train_df[['productGroup1']])
+df_p1.columns =['pg']
+df_p2 = pd.DataFrame(train_df[['productGroup2']])
+df_p2.columns = ['pg']
+df_p3 = pd.DataFrame(train_df[['productGroup3']])
+df_p3.columns = ['pg']
+df_p4 = pd.DataFrame(test_df.ix[88][['productGroup3']]).transpose()
+df_p4.columns = ['pg']
+df_p5 = pd.DataFrame(test_df.ix[177][['productGroup3']]).transpose()
+df_p5.columns = ['pg']
+df_p =  pd.concat([df_p1,df_p2,df_p3,df_p4,df_p5],ignore_index=True)
+
+#mapping
+class_mapping3 = {label:idx for idx,label in enumerate(set(df_p['pg']))}
+
+#applying mapping to the train and test df
+train_pg1 = train_df.productGroup1.map(class_mapping3)
+train_pg2 = train_df.productGroup2.map(class_mapping3)
+train_pg3 = train_df.productGroup3.map(class_mapping3)
+
+test_pg1 = test_df.productGroup1.map(class_mapping3)
+test_pg2 = test_df.productGroup2.map(class_mapping3)
+test_pg3 = test_df.productGroup3.map(class_mapping3)
+
+train_df['productGroup1'] = train_pg1
+train_df['productGroup2'] = train_pg2
+train_df['productGroup3'] = train_pg3
+
+test_df['productGroup1'] = test_pg1
+test_df['productGroup2'] = test_pg2
+test_df['productGroup3'] = test_pg3
+
+#Drop the OrderID
+train_df = train_df.drop(['orderID'],axis=1)
+test_df = test_df.drop(['orderID'],axis=1)
+
+#Encoding User ID's
+df_user = pd.concat([train_df[['userID']],test_df[['userID']]],ignore_index=True)
+class_mapping4 = {label:idx for idx,label in enumerate(set(df_user['userID']))}
+train_user = train_df.userID.map(class_mapping4)
+test_user = test_df.userID.map(class_mapping4)
+train_df['userID'] = train_user
+test_df['userID'] = test_user
+
+#Encoding coupon ID's
+df_c1 = train_df[['couponID1']]
+df_c1.columns = ['c']
+df_c2 = train_df[['couponID2']]
+df_c2.columns = ['c']
+df_c3 = train_df[['couponID3']]
+df_c3.columns = ['c']
+df_c4 = test_df[['couponID1']]
+df_c4.columns = ['c']
+df_c5 = test_df[['couponID2']]
+df_c5.columns = ['c']
+df_c6 = test_df[['couponID3']]
+df_c6.columns = ['c']
+df_coupon = pd.concat([df_c1,df_c2,df_c3,df_c4,df_c5,df_c6],ignore_index=True)
+class_mapping5 = {label:idx for idx,label in enumerate(set(df_coupon['c']))}
+train_c1 = train_df.couponID1.map(class_mapping5)
+train_c2 = train_df.couponID2.map(class_mapping5)
+train_c3 = train_df.couponID3.map(class_mapping5)
+
+test_c1 = test_df.couponID1.map(class_mapping5)
+test_c2 = test_df.couponID2.map(class_mapping5)
+test_c3 = test_df.couponID3.map(class_mapping5)
+train_df['couponID1'] = train_c1
+train_df['couponID2'] = train_c2
+train_df['couponID3'] = train_c3
+
+test_df['couponID1'] = test_c1
+test_df['couponID2'] = test_c2
+test_df['couponID3'] = test_c3
+
+#Finally write these changes to new train and test data frames
+train_df.to_csv('train_df.csv',index = False)
+test_df.to_csv('test_df.csv',index = False)
