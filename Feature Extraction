@@ -1,0 +1,344 @@
+#Load Data Frames
+#This module deals with extracting fatures as log likelihood of various categorical features and dummifying categories
+train_df = pd.read_csv("train_df.csv")
+test_df = pd.read_csv("test_df.csv")
+
+#Separating dataframes into 3 sub df's for each coupon
+train_df_coup1 = train_df[['seconds','price1','basePrice1','reward1','premiumProduct1','userID','couponID1','brand1','productGroup1','categoryIDs1','coupon1Used']]
+train_df_coup2 = train_df[['seconds','price2','basePrice2','reward2','premiumProduct2','userID','couponID2','brand2','productGroup2','categoryIDs2','coupon2Used']]
+train_df_coup3 = train_df[['seconds','price3','basePrice3','reward3','premiumProduct3','userID','couponID3','brand3','productGroup3','categoryIDs3','coupon3Used']]
+
+test_df_coup1 = test_df[['seconds','price1','basePrice1','reward1','premiumProduct1','userID','couponID1','brand1','productGroup1','categoryIDs1']]
+test_df_coup2 = test_df[['seconds','price2','basePrice2','reward2','premiumProduct2','userID','couponID2','brand2','productGroup2','categoryIDs2']]
+test_df_coup3 = test_df[['seconds','price3','basePrice3','reward3','premiumProduct3','userID','couponID3','brand3','productGroup3','categoryIDs3']]
+
+#Adding New Numerical Features
+#baseprice - price as a new feature
+train_df_coup1['bp - p'] = train_df_coup1.basePrice1 - train_df_coup1.price1
+train_df_coup2['bp - p'] = train_df_coup2.basePrice2 - train_df_coup2.price2
+train_df_coup3['bp - p'] = train_df_coup3.basePrice3 - train_df_coup3.price3
+
+test_df_coup1['bp - p'] = test_df_coup1.basePrice1 - test_df_coup1.price1
+test_df_coup2['bp - p'] = test_df_coup2.basePrice2 - test_df_coup2.price2
+test_df_coup3['bp - p'] = test_df_coup3.basePrice3 - test_df_coup3.price3
+
+#price - reward as a feature
+train_df_coup1['p - r'] = train_df_coup1.price1 - train_df_coup1.reward1
+train_df_coup2['p - r'] = train_df_coup2.price2 - train_df_coup2.reward2
+train_df_coup3['p - r'] = train_df_coup3.price3 - train_df_coup3.reward3
+
+test_df_coup1['p - r'] = test_df_coup1.price1 - test_df_coup1.reward1
+test_df_coup2['p - r'] = test_df_coup2.price2 - test_df_coup2.reward2
+test_df_coup3['p - r'] = test_df_coup3.price3 - test_df_coup3.reward3
+#basePrice - reward
+train_df_coup1['bp - r'] = train_df_coup1.basePrice1 - train_df_coup1.reward1
+train_df_coup2['bp - r'] = train_df_coup2.basePrice2 - train_df_coup2.reward2
+train_df_coup3['bp - r'] = train_df_coup3.basePrice3 - train_df_coup3.reward3
+
+test_df_coup1['bp - r'] = test_df_coup1.basePrice1 - test_df_coup1.reward1
+test_df_coup2['bp - r'] = test_df_coup2.basePrice2 - test_df_coup2.reward2
+test_df_coup3['bp - r'] = test_df_coup3.basePrice3 - test_df_coup3.reward3
+#basePrice/price
+train_df_coup1['bp/p'] = train_df_coup1.basePrice1.astype('float').div(train_df_coup1.price1.astype('float'),axis='index')
+train_df_coup2['bp/p'] = train_df_coup2.basePrice2.astype('float').div(train_df_coup2.price2.astype('float'),axis='index')
+train_df_coup3['bp/p'] = train_df_coup3.basePrice3.astype('float').div(train_df_coup3.price3.astype('float'),axis='index')
+
+test_df_coup1['bp/p'] = test_df_coup1.basePrice1.astype('float').div(test_df_coup1.price1.astype('float'),axis='index')
+test_df_coup2['bp/p'] = test_df_coup2.basePrice2.astype('float').div(test_df_coup2.price2.astype('float'),axis='index')
+test_df_coup3['bp/p'] = test_df_coup3.basePrice3.astype('float').div(test_df_coup3.price3.astype('float'),axis='index')
+#reward/price
+train_df_coup1['p/r'] = train_df_coup1.price1.astype('float').div(train_df_coup1.reward1.astype('float'),axis='index')
+train_df_coup2['p/r'] = train_df_coup2.price2.astype('float').div(train_df_coup2.reward2.astype('float'),axis='index')
+train_df_coup3['p/r'] = train_df_coup3.price3.astype('float').div(train_df_coup3.reward3.astype('float'),axis='index')
+
+test_df_coup1['p/r'] = test_df_coup1.price1.astype('float').div(test_df_coup1.reward1.astype('float'),axis='index')
+test_df_coup2['p/r'] = test_df_coup2.price2.astype('float').div(test_df_coup2.reward2.astype('float'),axis='index')
+test_df_coup3['p/r'] = test_df_coup3.price3.astype('float').div(test_df_coup3.reward3.astype('float'),axis='index')
+#reward/basePrice
+train_df_coup1['bp/r'] = train_df_coup1.basePrice1.astype('float').div(train_df_coup1.reward1.astype('float'),axis='index')
+train_df_coup2['bp/r'] = train_df_coup2.basePrice2.astype('float').div(train_df_coup2.reward2.astype('float'),axis='index')
+train_df_coup3['bp/r'] = train_df_coup3.basePrice3.astype('float').div(train_df_coup3.reward3.astype('float'),axis='index')
+
+test_df_coup1['bp/r'] = test_df_coup1.basePrice1.astype('float').div(test_df_coup1.reward1.astype('float'),axis='index')
+test_df_coup2['bp/r'] = test_df_coup2.basePrice2.astype('float').div(test_df_coup2.reward2.astype('float'),axis='index')
+test_df_coup3['bp/r'] = test_df_coup3.basePrice3.astype('float').div(test_df_coup3.reward3.astype('float'),axis='index')
+
+#Now Creating Log-Likelihoods for different categorical feaures
+#train_df_coup1_X = train_df_coup1[['seconds','price1','basePrice1','reward1','premiumProduct1','userID','couponID1','brand1','productGroup1','categoryIDs1','bp - p','p - r','bp - r','bp/p','p/r','bp/r']]
+#train_df_coup1_y = train_df_coup1[['coupon1Used']]
+#test_df_coup1_X = test_df_coup1[['seconds','price1','basePrice1','reward1','premiumProduct1','userID','couponID1','brand1','productGroup1','categoryIDs1','bp - p','p - r','bp - r','p/bp','r/p','r/bp']]
+
+#train_df_coup2_X = train_df_coup2[['seconds','price2','basePrice2','reward2','premiumProduct2','userID','couponID2','brand2','productGroup2','categoryIDs2','bp - p','p - r','bp - r','bp/p','p/r','bp/r']]
+#train_df_coup2_y = train_df_coup2[['coupon2Used']]
+#test_df_coup2_X = test_df_coup2[['seconds','price2','basePrice2','reward2','premiumProduct2','userID','couponID2','brand2','productGroup2','categoryIDs2','bp - p','p - r','bp - r','p/bp','r/p','r/bp']]
+
+#train_df_coup3_X = train_df_coup3[['seconds','price3','basePrice3','reward3','premiumProduct3','userID','couponID3','brand3','productGroup3','categoryIDs3','bp - p','p - r','bp - r','bp/p','p/r','bp/r']]
+#train_df_coup3_y = train_df_coup3[['coupon3Used']]
+#test_df_coup3_X = test_df_coup3[['seconds','price3','basePrice3','reward3','premiumProduct3','userID','couponID3','brand3','productGroup3','categoryIDs3','bp - p','p - r','bp - r','p/bp','r/p','r/bp']]
+
+_CATE_FEATURE_INDICES = [7,8,9]
+
+def get_loglikelihood_ratio(x, y, idx, cate_range):
+    pos_num = 0
+    neg_num = 0
+    pos_map = defaultdict(int)
+    neg_map = defaultdict(int)
+    for i in range(len(x)):
+        cate = x[i][idx]
+        if y[i] == 1:
+            if idx == 9:
+                pos_num += len(cate)
+                cate = cate.split(',')
+                for i in range(len(cate)):
+                    pos_map[int(cate[i])] += 1
+            else:
+                pos_num += 1
+                pos_map[cate] += 1
+        else:
+            if idx == 9:
+                neg_num += len(cate)
+                cate = cate.split(',')
+                for i in range(len(cate)):
+                    neg_map[int(cate[i])] += 1
+            else:
+                neg_num += 1
+                neg_map[cate] += 1
+
+    ratio_map = defaultdict(lambda: 0)
+    for cate in range(cate_range + 1):
+        p_pos = -100
+        if cate in pos_map:
+            p_pos = math.log10(pos_map[cate] / float(pos_num))
+        p_neg = -100
+        if cate in neg_map:
+            p_neg = math.log10(neg_map[cate] / float(neg_num))
+        ratio_map[cate] = p_pos - p_neg
+    return ratio_map
+
+def get_feature(x,range_map,ratio_map):
+    x_new  = []
+    for line in x:
+        k = 0
+        features = []
+        #Log Likelihood Ratio
+        for idx in _CATE_FEATURE_INDICES:
+            if(idx==9):
+                cate = line[idx]
+                cate = cate.split(',')
+                cur_ratio_map = ratio_map[idx]
+                for i in range(len(cate)):
+                    k+=cur_ratio_map[int(cate[i])]
+                features.append(k)
+            else:
+                cate = line[idx]
+                cur_ratio_map = ratio_map[idx]
+                features.append(cur_ratio_map[cate])
+        x_new.append(features)
+    return x_new
+            
+def create_feature_test(x, y, x_test):
+    range_map = {}
+    ratio_map = {}
+    for idx in _CATE_FEATURE_INDICES:
+        l = []
+        if idx == 9:
+            for i in range(len(x[:,idx])):
+                for j in range(len(x[:,idx][i].split(','))):
+                    l.append(int(x[:,idx][i].split(',')[j]))
+            range_map[idx] = max(l)  
+        else:
+            range_map[idx] = max(x, key=lambda s: s[idx])[idx]
+        ratio_map[idx] = get_loglikelihood_ratio(x,y, idx, range_map[idx])
+    x_test_new = get_feature(x_test, range_map, ratio_map)
+    return x_test_new
+
+def create_feature_part(x,y,part):
+    range_map = {}
+    ratio_map = {}
+    for idx in _CATE_FEATURE_INDICES:
+        l = []
+        if idx == 9:
+            for i in range(len(x[:,idx])):
+                for j in range(len(x[:,idx][i].split(','))):
+                    l.append(int(x[:,idx][i].split(',')[j]))
+            range_map[idx] = max(l)  
+        else:
+            range_map[idx] = max(x, key=lambda s: s[idx])[idx]
+        ratio_map[idx] = get_loglikelihood_ratio(x,y, idx, range_map[idx])
+    x_part = get_feature(part,range_map,ratio_map)
+    return x_part
+    
+#Calculating likelihoods for categories in test data
+
+test_coup1_log = create_feature_test(train_df_coup1_X.values,train_df_coup1_y.values,test_df_coup1.values)
+test_coup2_log = create_feature_test(train_df_coup2_X.values,train_df_coup2_y.values,test_df_coup2.values)
+test_coup3_log = create_feature_test(train_df_coup3_X.values,train_df_coup3_y.values,test_df_coup3.values)
+
+#Calculating likelihoods for training data.In order to avoid overfitting,the likelihoods are calculated using validation set
+part1 = train_df_coup1_X[:1500]
+part1_y = train_df_coup1_y[:1500]
+part2 = train_df_coup1_X[1500:3000]
+part2_y = train_df_coup1_y[1500:3000]
+part3 = train_df_coup1_X[3000:4500]
+part3_y = train_df_coup1_y[3000:4500]
+part4 = train_df_coup1_X[4500:6053]
+part4_y = train_df_coup1_y[4500:6053]
+#for part1
+train_part1_log = create_feature_part(pd.concat([part2,part3,part4]).values,pd.concat([part2_y,part3_y,part4_y]).values,part1.values)
+train_part2_log = create_feature_part(pd.concat([part1,part3,part4]).values,pd.concat([part1_y,part3_y,part4_y]).values,part2.values)
+train_part3_log = create_feature_part(pd.concat([part1,part2,part4]).values,pd.concat([part1_y,part2_y,part4_y]).values,part3.values)
+train_part4_log = create_feature_part(pd.concat([part1,part2,part3]).values,pd.concat([part1_y,part2_y,part3_y]).values,part4.values)
+train_coup1_log = train_part1_log+train_part2_log+train_part3_log+train_part4_log
+
+part5 = train_df_coup2_X[:1500]
+part5_y = train_df_coup2_y[:1500]
+part6 = train_df_coup2_X[1500:3000]
+part6_y = train_df_coup2_y[1500:3000]
+part7 = train_df_coup2_X[3000:4500]
+part7_y = train_df_coup2_y[3000:4500]
+part8 = train_df_coup2_X[4500:6053]
+part8_y = train_df_coup2_y[4500:6053]
+#for part1
+train_part5_log = create_feature_part(pd.concat([part6,part7,part8]).values,pd.concat([part6_y,part7_y,part8_y]).values,part5.values)
+train_part6_log = create_feature_part(pd.concat([part5,part7,part8]).values,pd.concat([part5_y,part7_y,part8_y]).values,part6.values)
+train_part7_log = create_feature_part(pd.concat([part5,part6,part8]).values,pd.concat([part5_y,part6_y,part8_y]).values,part7.values)
+train_part8_log = create_feature_part(pd.concat([part5,part6,part7]).values,pd.concat([part5_y,part6_y,part7_y]).values,part8.values)
+train_coup2_log = train_part5_log+train_part6_log+train_part7_log+train_part8_log
+
+part9 = train_df_coup3_X[:1500]
+part9_y = train_df_coup3_y[:1500]
+part10 = train_df_coup3_X[1500:3000]
+part10_y = train_df_coup3_y[1500:3000]
+part11 = train_df_coup3_X[3000:4500]
+part11_y = train_df_coup3_y[3000:4500]
+part12 = train_df_coup3_X[4500:6053]
+part12_y = train_df_coup3_y[4500:6053]
+#for part1
+train_part9_log = create_feature_part(pd.concat([part10,part11,part12]).values,pd.concat([part10_y,part11_y,part12_y]).values,part9.values)
+train_part10_log = create_feature_part(pd.concat([part9,part11,part12]).values,pd.concat([part9_y,part11_y,part12_y]).values,part10.values)
+train_part11_log = create_feature_part(pd.concat([part9,part10,part12]).values,pd.concat([part9_y,part10_y,part12_y]).values,part11.values)
+train_part12_log = create_feature_part(pd.concat([part9,part10,part11]).values,pd.concat([part9_y,part10_y,part11_y]).values,part12.values)
+train_coup3_log = train_part9_log+train_part10_log+train_part11_log+train_part12_log
+
+#Finally add the likelihoods to main data frames
+train_df_coup1_X = pd.concat([train_df_coup1_X,pd.DataFrame(train_coup1_log,columns = ['brand_log','pg_log','cat_log'])],axis=1)
+train_df_coup2_X = pd.concat([train_df_coup2_X,pd.DataFrame(train_coup2_log,columns = ['brand_log','pg_log','cat_log'])],axis=1)
+train_df_coup3_X = pd.concat([train_df_coup3_X,pd.DataFrame(train_coup3_log,columns = ['brand_log','pg_log','cat_log'])],axis=1)
+
+test_df_coup1 = pd.concat([test_df_coup1,pd.DataFrame(test_coup1_log,columns = ['brand_log','pg_log','cat_log'])],axis=1)
+test_df_coup2 = pd.concat([test_df_coup2,pd.DataFrame(test_coup2_log,columns = ['brand_log','pg_log','cat_log'])],axis=1)
+test_df_coup3 = pd.concat([test_df_coup3,pd.DataFrame(test_coup3_log,columns = ['brand_log','pg_log','cat_log'])],axis=1)
+
+#Now add the 1-way counts for different categorical features
+
+#Merge training and test data for coupon 1
+tt_df1 = pd.concat([train_df_coup1_X,test_df_coup1],ignore_index=True)
+
+#1-way count of categorical features
+def get_count(values):
+    return len(values)
+#1-way count of categoryIDs
+def get_cat_count(df):
+    l=[]
+    l_cnt=[]
+    map1 = defaultdict(int)
+    for i in df:
+        cnt=0
+        for j in i.split(','):
+            cnt+=1
+            l.append(j)
+        l_cnt.append(cnt)
+    for i in range(len(l)):
+        map1[int(l[i])]+=1
+    list2 = []
+    for cnt in l_cnt:
+        count=0
+        for k in xrange(cnt):
+            count+=map1[int(l[k])]
+        list2.append(count)
+        del([l[:cnt]])
+    return list2
+grouped_count0 = tt_df1.groupby("premiumProduct1").premiumProduct1.agg(get_count)
+tt_df1['count_premium'] = tt_df1.premiumProduct1.map(grouped_count0)
+    
+grouped_count1 = tt_df1.groupby("userID").userID.agg(get_count)
+tt_df1['count_userID'] = tt_df1.userID.map(grouped_count1)
+
+grouped_count2 = tt_df1.groupby("couponID1").couponID1.agg(get_count)
+tt_df1['count_couponID1'] = tt_df1.couponID1.map(grouped_count2)
+
+grouped_count3 = tt_df1.groupby("brand1").brand1.agg(get_count)
+tt_df1['count_brand1'] = tt_df1.brand1.map(grouped_count3)
+
+grouped_count4 = tt_df1.groupby("productGroup1").productGroup1.agg(get_count)
+tt_df1['count_productGroup1'] = tt_df1.productGroup1.map(grouped_count4)
+
+tt_df1['categoryIDs1_count'] = get_cat_count(tt_df1['categoryIDs1'])
+
+
+#2-way counts
+upp1 = tt_df1.groupby(['userID','premiumProduct1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'user_pp1_count':upp1}),left_on=['userID','premiumProduct1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+uco1 = tt_df1.groupby(['userID','couponID1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'user_coup1_count':uco1}),left_on=['userID','couponID1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+ub1 = tt_df1.groupby(['userID','brand1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'user_brand1_count':ub1}),left_on=['userID','brand1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+upg1 = tt_df1.groupby(['userID','productGroup1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'user_pg1_count':upg1}),left_on=['userID','productGroup1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+ppco1 = tt_df1.groupby(['premiumProduct1','couponID1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'pp_coupon1_count':ppco1}),left_on=['premiumProduct1','couponID1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+cob1 = tt_df1.groupby(['couponID1','brand1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'coup_brand1_count':cob1}),left_on=['couponID1','brand1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+cpg1 = tt_df1.groupby(['couponID1','productGroup1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'coup_pg1_count':cpg1}),left_on=['couponID1','productGroup1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+bpg1 = tt_df1.groupby(['brand1','productGroup1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'brand_pg1_count':bpg1}),left_on=['brand1','productGroup1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+bpp1 = tt_df1.groupby(['brand1','premiumProduct1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'brand_pp1_count':bpp1}),left_on=['brand1','premiumProduct1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+pppg1= tt_df1.groupby(['premiumProduct1','productGroup1']).apply(get_count)
+tt_df1 = tt_df1.merge(pd.DataFrame({'pp_pg_count':pppg1}),left_on=['premiumProduct1','productGroup1'],right_index=True)
+tt_df1 = tt_df1.sort_index()
+
+#remove duplicate columns
+tt_df1 = tt_df1.T.drop_duplicates().T
+
+#Log transformations for all numerical features
+tt_df1['price1_log'] = tt_df1['price1'].apply(lambda x:np.log(x))
+tt_df1['basePrice1_log'] = tt_df1['basePrice1'].apply(lambda x:np.log(x))
+tt_df1['reward1_log'] = tt_df1['reward1'].apply(lambda x:np.log(x))
+#Square root transformations
+tt_df1['price1_sqrt'] = tt_df1['price1'].apply(lambda x:np.sqrt(x))
+tt_df1['basePrice1_sqrt'] = tt_df1['basePrice1'].apply(lambda x:np.sqrt(x))
+tt_df1['reward1_sqrt'] = tt_df1['reward1'].apply(lambda x:np.sqrt(x))
+
+tt_df1.drop(['userID','couponID1','brand1','productGroup1','categoryIDs1'],axis=1,inplace=True)
+
+#Now separate the train and test data
+train_df_coup1_X = tt_df1[0:6053]
+test_df_coup1 = tt_df1[6053:6722]
+#Finally write the changes for coupon 1 in new dataframe
+pd.concat([train_df_coup1_X,train_df_coup1_y],axis=1).to_csv('train_df_coup1.csv',index=False)
+test_df_coup1.to_csv('test_df_coup1.csv',index=False)
+
+
+
+
+#Repeat whole process for all the dataframes
